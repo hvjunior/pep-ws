@@ -12,14 +12,14 @@ public class Connect {
 	Connection con = null;
 
 	public Connect() throws SQLException, InstantiationException, IllegalAccessException, ClassNotFoundException {
-		String url = "jdbc:postgresql://localhost:5432/postgres";
+		String url = "jdbc:postgresql://postgres:5432/dojot";
 		String user = "postgres";
 		String password = "postgres";
 
 		Class.forName("org.postgresql.Driver").newInstance();
 		con = DriverManager.getConnection(url, user, password);
 
-		con.setSchema("dojot");
+		con.setSchema("dojot_authorization");
 	}
 
 	public void closeConnection() throws SQLException {
@@ -32,22 +32,25 @@ public class Connect {
 		try {
 
 			PreparedStatement preparedStatement = con
-					.prepareStatement("select * from authorization where action = ? and resource = ? and accessSubject = ?");
+					.prepareStatement("select resource from dojot_authorization.authorization where action = ? and accessSubject = ?");
 			preparedStatement.setString(1, action);
-			preparedStatement.setString(2, resource);
-			preparedStatement.setString(3, accessSubject);
+			preparedStatement.setString(2, accessSubject);
 
 			ResultSet rs = preparedStatement.executeQuery();
 
-			if (rs.next()) {
-				result = true;
-			} else {
-				result = false;
-			}				
+			while (rs.next()) {
+				String resourceAuthorized = rs.getString("resource");
+				
+				if (resource.contains(resourceAuthorized)) {
+					return true;
+				}
+			}
+								
+			return false;		
 		} catch (SQLException ex) {
 			Logger lgr = Logger.getLogger(Connect.class.getName());
 			lgr.log(Level.SEVERE, ex.getMessage(), ex);
-			result = false;
+			return false;
 		}
 		return result;
 	}
