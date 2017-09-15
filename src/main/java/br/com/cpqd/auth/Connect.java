@@ -27,8 +27,6 @@ public class Connect {
 	}
 	
 	public Boolean getPermission(String action, String resource, String accessSubject) {
-
-		Boolean result = null;
 		try {
 
 			PreparedStatement preparedStatement = con
@@ -52,6 +50,5 @@ public class Connect {
 			lgr.log(Level.SEVERE, ex.getMessage(), ex);
 			return false;
 		}
-		return result;
 	}
 }

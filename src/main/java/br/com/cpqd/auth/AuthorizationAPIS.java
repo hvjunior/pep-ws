@@ -14,10 +14,10 @@ import org.w3c.dom.Document;
 
 @Path("/entitlement")
 public class AuthorizationAPIS {
-	@POST
+@POST
 	@Path("/decision")
 	@Consumes(MediaType.APPLICATION_JSON)
-	@Produces(MediaType.APPLICATION_XML)
+	@Produces(MediaType.APPLICATION_JSON)
 	public Response verifyRESTService(InputStream incomingData) {
 		StringBuilder resultBuilder = new StringBuilder();
 		String resultString = null;
@@ -42,29 +42,17 @@ public class AuthorizationAPIS {
 	        Boolean result = connect.getPermission(action, resource, accessSubject);
 	        connect.closeConnection();
 
+	        Result resultTest;
+	        
 	        if (result) {
-	        	resultString = "<Response>"
-						+ "<Result>"
-						+ "<Decision>Permit</Decision>"
-						+ "</Result>"
-						+ "</Response>";
+	            resultTest = new Result("permit");
 	        } else {
-	        	resultString = "<Response>"
-						+ "<Result>"
-						+ "<Decision>Deny</Decision>"
-						+ "</Result>"
-						+ "</Response>";
+	            resultTest = new Result("deny");
 	        }
-			
-			Document resultXML = Utils.convertStringToXML(resultString);
-			
-			if (resultXML != null) {
-				return Response.status(200).entity(resultXML).build();
-			} else {
-				return Response.status(500).entity("Parsing XML error!").build();
-			}			
+	        
+	        return Response.status(200).entity(resultTest).build();	     
 		} catch (Exception e) {
 			return Response.status(500).entity(e.toString()).build();
 		}
-	}
+	}	
 }
